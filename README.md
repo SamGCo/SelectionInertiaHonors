@@ -1,4 +1,4 @@
-# SelectionInertiaHonors
+# Choice overload's effect on Adverse Selection and Inertia Honors Research
 
 This is my senior honor's thesis project where I am investigating the relationship of choice overload has with inertia and adverse selection in the ACA exchanges.
 
