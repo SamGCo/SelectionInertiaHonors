@@ -1,4 +1,4 @@
-`filingData2019 <- read.csv("C:\\Users\\squam\\OneDrive\\Desktop\\HonorsResearch\\2019FilingsData.csv")
+filingData2019 <- read.csv("C:\\Users\\squam\\OneDrive\\Desktop\\HonorsResearch\\2019FilingsData.csv")
 #incorporating demographic data into the RA data
 demoRA<-read_excel("C:\\Users\\squam\\OneDrive\\Desktop\\HonorsResearch\\2019 OEP State-Level Public Use File.xlsx",8)
 statesFiling<-unique(filingData2019$STATE)
@@ -11,7 +11,8 @@ colnames(plansByStates)<-c('State','PlanNum','TotalEnrollees',"Age18","Age1825",
 Markets<-c(13,3,7,7,19,9,8,1,1,67,16,1,6,13,17,7,7,8,8,4,4,7,16,9,6,10,4,4,4,1,6,5,8,16,4,17,5,7,9,1,46,4,8,27,6,1,12,9,11,16,3)
 mktStates<-(c("AL","AK", "AZ","AR","CA","CO" ,"CT","DE", "DC" , "FL","GA", "HI","ID", "IL","IN", "IA", "KS", "KY", "LA", "ME","MD","MA", "MI", "MN" ,"MS","MO","MT","NE","NV","NH", "NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"))
 mktDf<-data.frame(mktStates,Markets)
-
+popRA<-data.frame(matrix(ncol=3,nrow=0))
+colnames(popRA)<-c('State','RiskAdjustmentSum','comp')
 forTally<-1
 for(s in statesFiling)
 {
@@ -20,6 +21,9 @@ for(s in statesFiling)
   currentState<-subset(filingData2019,STATE==s)
   currentMkt<-subset(mktDf,mktStates==s)
   currentDemo<-subset(demoRA,demoRA$'State Abbr.'==s)
+  forRA <-subset(RAsum,State==s)
+  popRA[forTally,]<-c(forRA$State,as.numeric(forRA$RiskAdjustmentSum)/as.numeric(currentDemo$`Total Number of Consumers Who Have Selected an Exchange Plan`),forRA$comp)
+  
   count=0
   plans<-currentState$PLAN_ID
   for(p in plans)
@@ -29,6 +33,8 @@ for(s in statesFiling)
   
   plansByStates[forTally,]<-c(s,count/currentMkt$Markets,currentDemo$'Total Number of Consumers Who Have Selected an Exchange Plan',as.numeric(currentDemo$'Age < 18'),as.numeric(currentDemo$'Age 18-25'),as.numeric(currentDemo$'Age 26-34'),as.numeric(currentDemo$'Age 35-44'),as.numeric(currentDemo$'Age 45-54'),as.numeric(currentDemo$'Age 55-64'),as.numeric(currentDemo$'Age ≥65'),currentDemo$Male,currentDemo$Female,as.numeric(currentDemo$Asian),as.numeric(currentDemo$'American Indian / Alaska Native'),as.numeric(currentDemo$'African-American'),as.numeric(currentDemo$White),as.numeric(currentDemo$'Native Hawaiian / Pacific Islander'),as.numeric(currentDemo$Multiracial),as.numeric(currentDemo$'Unknown Race'),as.numeric(currentDemo$'Other Race'))
   forTally<-forTally+1
+  testPlan<-plansByStates
+  
   }
 }
 #changing each variable into a numeric from a character
@@ -53,7 +59,8 @@ plansByStates$unknown <-as.numeric(plansByStates$unknown)/as.numeric(plansByStat
 plansByStates$Other <-as.numeric(plansByStates$Other)/as.numeric(plansByStates$TotalEnrollees)
 
 
-RAwithPlans<-merge(RAsum,plansByStates, by='State')
+RAwithPlans<-merge(popRA,plansByStates, by='State')
 RAwithPlans$comp<-as.numeric(RAwithPlans$comp)
-plans.RA.lm<- lm(formula=RiskAdjustmentSum ~ PlanNum+Age18+Age1825+ Age2634+Age3544+Age4554+Age5564+Male+Asian+AIAN+AA+NHPI+Multi+White+unknown+comp,data=RAwithPlans)
+RAwithPlans$RiskAdjustmentSum<-as.numeric(RAwithPlans$RiskAdjustmentSum)
+plans.RA.lm<- lm(formula=RiskAdjustmentSum ~ PlanNum+Age18+Age1825+ Age2634+Age3544+Age4554+Age65+Male+Asian+AIAN+AA+NHPI+Multi+White+unknown+comp,data=RAwithPlans)
 summary(plans.RA.lm)  
