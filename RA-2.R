@@ -1,6 +1,7 @@
 filingData <- read.csv("C:\\Users\\squam\\OneDrive\\Desktop\\HonorsResearch\\acaData.csv")
 #incorporating demographic data into the RA data
 demoRA<-totalDemo
+demoRA$Year<-as.integer(demoRA$Year)
 statesFiling<-unique(totalPlans$ST)
 #filingData<-subset(filingData, Year==2015 | Year==2016 | Year==2017 | Year==2018| Year==2019)
 #filingData<-subset(filingData,EXCHANGE=="Yes")
@@ -40,7 +41,7 @@ for(y in Years)
 for(s in statesFiling)
 {
   
-  if(s=='MA'||s=='WY'||s=='DE'||s=='NE'||s=='AK'||s=='VT'){} #dropping MA and VT because there is no Risk Adjustment Data on them, dropping the rest because there is no demographic data for them
+  if(s=='MA'||s=='VT'){} #dropping MA and VT because there is no Risk Adjustment Data on them, dropping the rest because there is no demographic data for them
   else{
   currentState<-subset(totalPlans,ST==s & YEAR==y)
   currentMkt<-subset(mktDf,mktStates==s)
@@ -99,9 +100,10 @@ RAwithPlans$comp<-as.numeric(RAwithPlans$comp)
 RAwithPlans$RiskAdjustmentSum<-as.numeric(RAwithPlans$RiskAdjustmentSum)
 RAwithPlans$PlanNum2<-as.numeric(RAwithPlans$PlanNum)^2
 RAwithPlans<-subset(RAwithPlans,PlanNum!=0)
-plans.RA.lm<- lm(formula=RiskAdjustmentSum ~ PlanNum+PlanNum2+Age18+Age1825+ Age2634+Age3544+Age4554+Age65+Male+AIAN+AA+NHPI+Multi+White+unknown+factor(Year)-1,data=RAwithPlans)
+plans.RA.lm<- lm(formula=RiskAdjustmentSum ~ PlanNum+PlanNum2+Age18+Age1825+ Age2634+Age3544+Age4554+Age65+Male+AIAN+White+NHPI+Multi+Asian+unknown+comp+factor(Year)-1,data=RAwithPlans)
 print(summary(plans.RA.lm)  )
-RA.LM.No2<- lm(formula=RiskAdjustmentSum ~ PlanNum+Age18+Age1825+ Age2634+Age3544+Age4554+Age65+Male+AIAN+AA+NHPI+Multi+White+unknown+factor(Year)+comp,data=RAwithPlans)
+#RA.LM.No2<- lm(formula=RiskAdjustmentSum ~ PlanNum+Age18+Age1825+ Age2634+Age3544+Age4554+Age65+Male+AIAN+AA+NHPI+Multi+White+unknown+factor(Year)+comp,data=RAwithPlans)
+#summary(RA.LM.No2)
 #stargazer(plans.RA.lm, RA.LM.No2,type='text', title="Results", align=TRUE)
 #stargazer(RAwithPlans,type='text')
   

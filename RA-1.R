@@ -1,10 +1,16 @@
 library(readxl)
 Risk_Adjustment <- read.csv("C:\\Users\\squam\\OneDrive\\Desktop\\HonorsResearch\\RA\\ra_reins.csv")
+Risk_Adjustment<-subset(Risk_Adjustment,Year !=2018)
 ra2019<-read_xlsx("C:\\Users\\squam\\OneDrive\\Desktop\\HonorsResearch\\RA\\2019 Risk Adjustment.xlsx")
 RAData<-Risk_Adjustment #import data
+ra2018<-read_xlsx("C:\\Users\\squam\\OneDrive\\Desktop\\HonorsResearch\\RA\\2018 Risk Adjustment.xlsx")
 ra2019<-ra2019[1:7]
+ra2018<-ra2018[1:7]
+ra2018<-subset(ra2018, RA_IND>=1 | RA_IND<=-1)
 colnames(ra2019)<-colnames(Risk_Adjustment)
+colnames(ra2018)<-colnames(Risk_Adjustment)
 Risk_Adjustment<-rbind(Risk_Adjustment,ra2019)
+Risk_Adjustment<-rbind(Risk_Adjustment,ra2018)
 Risk_Adjustment<-subset(Risk_Adjustment,Year!=2014)
 states<-unique(RAData$STATE) #make list of states
 years<-unique(Risk_Adjustment$Year)
@@ -34,3 +40,4 @@ for(y in years)
 
 
 RAsum<-subset(RAsum, year==2015 | year==2016 | year==2017 | year==2018| year==2019)
+RAsum$RiskAdjustmentSum<-as.numeric(RAsum$RiskAdjustmentSum)
