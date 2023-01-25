@@ -3,27 +3,7 @@ filingData <- read.csv("C:\\Users\\squam\\OneDrive\\Desktop\\HonorsResearch\\aca
 demoRA<-totalDemo
 demoRA$Year<-as.integer(demoRA$Year)
 statesFiling<-unique(totalPlans$ST)
-#filingData<-subset(filingData, Year==2015 | Year==2016 | Year==2017 | Year==2018| Year==2019)
-#filingData<-subset(filingData,EXCHANGE=="Yes")
-#insurersFromFiling<-intersect(filingData$ISSUER_ID,insurersWithRA)
-#checking<-0
-# for(ye in insurersWithoutRA$Year){
-# for(i in insurersWithoutRA$HIOS)
-# {
-#   currentInsurer<-subset(insurersWithoutRA,HIOS==i & Year==ye)
-#   for(id in filingData$ISSUER_ID)
-#   {
-#     currentFiling<-subset(filingData,ISSUER_ID==id & Year==ye)
-#     if(nrow(currentFiling)==0){break}
-#     else if (currentFiling[1,]$ISSUER_ID==i)
-#     {
-#       filingData<-subset(filingData,ISSUER_ID!=id & Year!=ye)
-#       checking<-checking+1
-#     }
-#     else{break}
-#   }
-# }
-# }
+
 plansByStates<- data.frame(matrix(ncol=20,nrow=0))
 colnames(plansByStates)<-c('State','PlanNum','TotalEnrollees',"Age18","Age1825", "Age2634","Age3544","Age4554", "Age5564" ,"Age65",'Male','Female','Asian','AIAN','AA','White','NHPI','Multi','unknown','Year')
 
@@ -34,7 +14,7 @@ mktStates<-(c("AL","AK", "AZ","AR","CA","CO" ,"CT","DE", "DC" , "FL","GA", "HI",
 mktDf<-data.frame(mktStates,Markets)
 popRA<-data.frame(matrix(ncol=4,nrow=0))
 colnames(popRA)<-c('State','RiskAdjustmentSum','comp','Year')
-Years<-c(2015,2016,2017,2018,2019)
+Years<-c(2015,2016,2017,2018,2019,2020,2021)
 forTally<-1
 for(y in Years)
 {
@@ -52,7 +32,7 @@ for(s in statesFiling)
     
   }
   else{
-  popRA[forTally,]<-c(forRA$State,as.numeric(forRA$RiskAdjustmentSum)/as.numeric(currentDemo$TotalEnrollees),forRA$comp,forRA$year)
+  popRA[forTally,]<-c(forRA$State,forRA$RiskAdjustmentSum/as.numeric(currentDemo$TotalEnrollees),forRA$comp,forRA$year)
   
   count=0
   }
@@ -91,19 +71,13 @@ plansByStates$White <-as.numeric(plansByStates$White)
 plansByStates$NHPI <-as.numeric(plansByStates$NHPI)
 plansByStates$Multi <-as.numeric(plansByStates$Multi)
 plansByStates$unknown <-as.numeric(plansByStates$unknown)
-#plansByStates$Other <-as.numeric(plansByStates$Other)
 
-
-#RAwithPlans<-merge(popRA,plansByStates, by='State')
 RAwithPlans<-inner_join(popRA,plansByStates,by=c("State","Year"))
 RAwithPlans$comp<-as.numeric(RAwithPlans$comp)
 RAwithPlans$RiskAdjustmentSum<-as.numeric(RAwithPlans$RiskAdjustmentSum)
 RAwithPlans$PlanNum2<-as.numeric(RAwithPlans$PlanNum)^2
 RAwithPlans<-subset(RAwithPlans,PlanNum!=0)
-plans.RA.lm<- lm(formula=RiskAdjustmentSum ~ PlanNum+PlanNum2+Age18+Age1825+ Age2634+Age3544+Age4554+Age65+Male+AIAN+White+NHPI+Multi+Asian+unknown+comp+factor(Year)-1,data=RAwithPlans)
+plans.RA.lm<- lm(formula=RiskAdjustmentSum ~ PlanNum+PlanNum2+Age18+Age1825+ Age2634+Age3544+Age4554+Age65+Female+AIAN+White+NHPI+Multi+Asian+unknown+comp+factor(Year)-1,data=RAwithPlans)
 print(summary(plans.RA.lm)  )
-#RA.LM.No2<- lm(formula=RiskAdjustmentSum ~ PlanNum+Age18+Age1825+ Age2634+Age3544+Age4554+Age65+Male+AIAN+AA+NHPI+Multi+White+unknown+factor(Year)+comp,data=RAwithPlans)
-#summary(RA.LM.No2)
-#stargazer(plans.RA.lm, RA.LM.No2,type='text', title="Results", align=TRUE)
-#stargazer(RAwithPlans,type='text')
+
   
