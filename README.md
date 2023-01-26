@@ -10,3 +10,4 @@ RA-1 is a script that imports risk adjustment data to then create a dataframe wi
 
 RA-2 is a script that takes insurance filing data to create a dataframe with the number of markets per state and then the number of plans per state to then create a dataframe where I have each state with the average number of plans per market per state to then run a regression with the risk adjustment sum from the last script. 
                                                         
+RAFinal calls each of these previous scripts and loads the appropriate packages to run the final regression.
