@@ -22,6 +22,7 @@ ra2021<-ra2021[1:7]
 ra2020<-subset(ra2020, RA_IND>=1 | RA_IND<=-1)
 colnames(ra2019)<-colnames(Risk_Adjustment)
 colnames(ra2021)<-colnames(Risk_Adjustment)
+ra2020$RA_IND<-as.numeric(ra2020$RA_IND)
 ra2021$RA_IND<-as.numeric(ra2021$RA_IND)
 
 Risk_Adjustment<-rbind(Risk_Adjustment,ra2019)
@@ -31,8 +32,8 @@ Risk_Adjustment<-rbind(Risk_Adjustment,ra2021)
 Risk_Adjustment<-subset(Risk_Adjustment,Year!=2014)
 states<-unique(RAData$STATE) #make list of states
 years<-unique(Risk_Adjustment$Year)
-RAsum <- data.frame(matrix(ncol=4,nrow=0)) #create empty final data set 
-colnames(RAsum)<-c('State','RiskAdjustmentSum','comp','year') #name columns for dataset
+RAsum <- data.frame(matrix(ncol=5,nrow=0)) #create empty final data set 
+colnames(RAsum)<-c('State','RiskAdjustmentSum','RAVar','comp','year') #name columns for dataset
 tally=1 #tally for for loop
 insurersWithoutRA<-subset(Risk_Adjustment, RA_IND==0)
 Risk_Adjustment<-subset(Risk_Adjustment, RA_IND!=0)
@@ -43,13 +44,14 @@ for(y in years)
   comp=0
   currentRA<-subset(Risk_Adjustment,STATE==x & Year==y) #create dataframe of the x state
   currentValue<-sum(abs(as.numeric(currentRA$RA_IND)))/2 #sum and divide by two RA
+  currentVar<-var(as.numeric(currentRA$RA_IND))
   insurers<-currentRA$HIOS #create list of insurers for x state
   for(i in insurers)
   {
     comp=comp+1 #for loop to create number of insurers per state
   }# remember to look at insurers per year
   if(currentValue !=0){
-  RAsum[tally,]<-c(x,currentValue,comp,y) #add to data set
+  RAsum[tally,]<-c(x,currentValue,currentVar,comp,y) #add to data set
   tally=tally+1
   }
 }

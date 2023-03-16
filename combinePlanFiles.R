@@ -10,4 +10,6 @@ totalPlans <- totalPlans[!(totalPlans$CSR == 1 | totalPlans$CHILDONLY == 1), ]
 #totalPlans <- totalPlans[!duplicated(totalPlans$PLANID), ]
 totalPlans<-subset(totalPlans,actively_marketed!='false')
 totalPlans<-subset(totalPlans,PLANMARKET!=2)
+totalPlans<-totalPlans[1:10]
+WeightedtotalPlans<-inner_join(totalPlans,areaPop)
   
