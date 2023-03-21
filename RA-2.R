@@ -43,9 +43,6 @@ for(s in statesFiling)
   count=0
   }
   
-  for(a in areaThing$AREA)
-  {
-    plans<-subset(currentState, AREA==a)$PLANID
   
   for(p in plans)
   {
@@ -54,18 +51,19 @@ for(s in statesFiling)
     
     
   }
-    count<-count*plans$pop
+ 
   }
   if ((dim(currentDemo)[1] == 0))
   {}
   else{
-  plansByStates[forTally,]<-c(s,count/currentMkt$Markets,as.numeric(currentDemo$TotalEnrollees),as.numeric(currentDemo$Age18),as.numeric(currentDemo$Age1825),as.numeric(currentDemo$Age2634),as.numeric(currentDemo$Age3544),as.numeric(currentDemo$Age4554),as.numeric(currentDemo$Age5564),as.numeric(currentDemo$Age65),currentDemo$Male,currentDemo$Female,as.numeric(currentDemo$Asian),as.numeric(currentDemo$AIAN),as.numeric(currentDemo$AA),as.numeric(currentDemo$White),as.numeric(currentDemo$NHPI),as.numeric(currentDemo$Multi),as.numeric(currentDemo$unknown),y,currentDemo$TotalEnrollees/currentMkt$Markets)
+  planNum<-summarise(currentState,.by=c("YEAR","ST"),planNum=n()/currentMkt$Markets)
+  plansByStates[forTally,]<-c(s,planNum$planNum,as.numeric(currentDemo$TotalEnrollees),as.numeric(currentDemo$Age18),as.numeric(currentDemo$Age1825),as.numeric(currentDemo$Age2634),as.numeric(currentDemo$Age3544),as.numeric(currentDemo$Age4554),as.numeric(currentDemo$Age5564),as.numeric(currentDemo$Age65),currentDemo$Male,currentDemo$Female,as.numeric(currentDemo$Asian),as.numeric(currentDemo$AIAN),as.numeric(currentDemo$AA),as.numeric(currentDemo$White),as.numeric(currentDemo$NHPI),as.numeric(currentDemo$Multi),as.numeric(currentDemo$unknown),y,currentDemo$TotalEnrollees/currentMkt$Markets)
   forTally<-forTally+1
 
   }
   
   }
-  }
+  
 
 }
 #changing each variable into a numeric from a character
@@ -101,17 +99,30 @@ yearFE<- feols(fml=RiskAdjustmentSum ~ PlanNum+PlanNum2+Age18+Age1825+ Age2634+A
 
 plans.RA.lm<- feols(fml=RiskAdjustmentSum ~ PlanNum+PlanNum2+Age18+Age1825+ Age2634+Age3544+Age4554+Age65+Female+AIAN+White+NHPI+Multi+Asian+unknown+comp | State+Year,data=RAwithPlans)
 print(summary(plans.RA.lm)  )
-raVar.lm<-lm(formula=RAVar~comp, data=RAwithPlans)
-summary(raVar.lm)
-plot(RAwithPlans$PlanNum,RAwithPlans$RiskAdjustmentSum)
-par(new=TRUE)
-plot(y2,0,145,add=TRUE,col="Red")
+raVar.lm<-feols(formula=RAVar~comp, data=RAwithPlans)
+# summary(raVar.lm)
+# plot(RAwithPlans$PlanNum,RAwithPlans$RiskAdjustmentSum)
+# par(new=TRUE)
+# plot(y2,0,145,add=TRUE,col="Red")
+# 
+# 
+# models<-list("No Fixed Effects"=noFE,"State Fixed Effects" =stateFE,"Year Fixed Effects"=yearFE,"State and Year Fixed Effects"=plans.RA.lm)
+# modelSummaryTable<-modelsummary::modelsummary(models,coef_omit = "Intercept",stars=TRUE)
+# save(modelSummaryTable,"fixedEffectsRegression.png")
+# 
+# insurers.lm<-feols(fml=RiskAdjustmentSum ~ comp+comp2+Age18+Age1825+ Age2634+Age3544+Age4554+Age65+Female+AIAN+White+NHPI+Multi+Asian+unknown | State+Year,data=RAwithPlans)
+# summary(insurers.lm)
 
+match_data <- cem::cem(RiskAdjustmentSum ~ PlanNum +comp, data = RAwithPlans)
+summary(match_data)
 
-models<-list("No Fixed Effects"=noFE,"State Fixed Effects" =stateFE,"Year Fixed Effects"=yearFE,"State and Year Fixed Effects"=plans.RA.lm)
-modelSummaryTable<-modelsummary::modelsummary(models,coef_omit = "Intercept",stars=TRUE)
-save(modelSummaryTable,"fixedEffectsRegression.png")
+numericalAS <- select_if(RAwithPlans[,c(-25,-26)], is.numeric,na.rm=TRUE)
+correlations <- cor(numericalAS[, -3], numericalAS[, 3], use = "pairwise.complete.obs")
 
-insurers.lm<-feols(fml=RiskAdjustmentSum ~ comp+comp2+Age18+Age1825+ Age2634+Age3544+Age4554+Age65+Female+AIAN+White+NHPI+Multi+Asian+unknown | State+Year,data=RAwithPlans)
-summary(insurers.lm)
+# Create a correlation chart using the corrplot function
+# png("RAcorrplot.png", width = 1500, height = 800)
+# corrplot(correlations, method = "color",
+#          tl.col = "black", tl.srt = 45, 
+#          title = "Correlation Chart of the Number of Plans",addCoef.col = "black", addCoefasPercent = TRUE,tl.cex=.5)
+# dev.off()
 save.image("workspace.RData")

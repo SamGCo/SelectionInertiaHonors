@@ -7,4 +7,5 @@ source('C:/Users/squam/OneDrive/Documents/Honors Thesis/combinePlanFiles.R')
 source('C:/Users/squam/OneDrive/Documents/Honors Thesis/RA-1.R')
 source('C:/Users/squam/OneDrive/Documents/Honors Thesis/weightTestThing.R')
 source('C:/Users/squam/OneDrive/Documents/Honors Thesis/RA-2.R')
+source('C:/Users/squam/OneDrive/Documents/Honors Thesis/inertia-1.R')
   
